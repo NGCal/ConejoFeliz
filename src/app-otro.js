@@ -1,4 +1,4 @@
-var STARTED = false;
+var INITIALIZED = false;
 var HelloWorldLayer = cc.Layer.extend({
     sprFondo:null,
     sprConejo:null,
@@ -18,55 +18,40 @@ var HelloWorldLayer = cc.Layer.extend({
         var pos = location.getLocation();
         var xAct = juego.sprConejo.getPositionX();
         
-        cc.log("Pos: "+xAct);
-      if(xAct < 606 && xAct <= pos.x){
-          
-        juego.sprConejo.setPositionX(xAct + 40);
-        juego.sprConejo.setTexture(res.cd);
         
+      if(xAct < 598 && xAct <= pos.x){
+          
+        juego.sprConejo.setPositionX(xAct + 45);
+          
           //juego.sprConejo.setPositionX(pos.x);
       }
-        else if(270 < xAct && pos.x <= xAct){
-        juego.sprConejo.setPositionX(xAct - 40);
-        juego.sprConejo.setTexture(res.cl)
+        else if(250 < xAct && pos.x <= xAct){
+        juego.sprConejo.setPositionX(xAct - 45);
        
           //juego.sprConejo.setPositionX(pos.x);
         }
+        else
+        juego.sprConejo.setTexture(res.conejo_png)
             /* cc.log("Pos. Conejo: "+juego.sprConejo.getPositionX());*/
         //cc.log("Pos. act: "+pos.x);
     },
-    
-    //Movimiento con Teclado
     movimientoT:function(key,event){
         var juego = event.getCurrentTarget();
         var xAct = juego.sprConejo.getPositionX();
-        var pas = 40;
      
         switch(key){
             case cc.KEY.left:
                 cc.log("left");
-                if(xAct - pas > 210){
-                cc.log("Pos: "+xAct);
-                juego.sprConejo.setPositionX(xAct - pas);
-                juego.sprConejo.setTexture(res.cl);
-                }
+                if(xAct > 250){
+                juego.sprConejo.setPositionX(xAct - 45); }
                 break;   
             case cc.KEY.right :
-                if(xAct + pas <= 606){
-                     cc.log("Pos: "+xAct);
-                juego.sprConejo.setPositionX(xAct + pas);
-                juego.sprConejo.setTexture(res.cd);
-                }
+                if(xAct < 598){
+                juego.sprConejo.setPositionX(xAct + 45); }
                 break;  
         }
         
     },
-    
-    imagenBase:function(event){
-        var juego = event.getCurrentTarget();
-        juego.sprConejo.setTexture(res.conejo_png);
-    }
-    ,
      colision:function(objecto){
          //cc.log("Gordito:"+objecto.getPositionX());
          var cuadro = this.sprConejo.getBoundingBox();
@@ -118,9 +103,7 @@ var HelloWorldLayer = cc.Layer.extend({
                 //cc.log("Puntos: "+this.puntuacion);
                this.actPuntuacion(this.puntuacion);
             }
-            
-                if(this.puntuacion === 15)
-                    this.winner();
+                
                
                };
             
@@ -137,9 +120,8 @@ var HelloWorldLayer = cc.Layer.extend({
                         
                 if(this.noVidas === 0)
                     {
-                        
-                       this.gameOver();
-                    }
+                        var sceneo = new gameOverScene();
+                        cc.director.pushScene(new cc.TransitionFade(3.0,sceneo));  }
                
                };
               
@@ -162,25 +144,11 @@ var HelloWorldLayer = cc.Layer.extend({
         var altoFondo = this.sprFondo._getHeight();
        
         vida.setScale(0.25,0.25);
-         vida.setPosition(280, ((this.size.height /2)+290)-(50*i));
+         vida.setPosition(265, ((this.size.height /2)+280)-(50*i));
         this.addChild(vida, 2);
          this.vidas.push(vida);	}
         
     },
-    gameOver: function(){
-        var escena = cc.Scene.create();
-        escena.addChild(new gOverLayer());
-        cc.director.runScene(new cc.TransitionFade(3.0,escena));
-    }
-    ,
-    
-     winner: function(){
-        var escena = cc.Scene.create();
-        escena.addChild(new yWinLayer());
-        cc.director.runScene(new cc.TransitionFade(3.0,escena));
-    }
-    ,
-    
     
     ctor:function () {
         this._super();
@@ -200,11 +168,6 @@ var HelloWorldLayer = cc.Layer.extend({
         this.sprConejo.setPosition((size.width / 2)-74,size.height*0.03);
         this.sprConejo.setAnchorPoint(0,0);
         this.addChild(this.sprConejo, 1);
-        
-        //Colocando letreros
-        
-        
-    
         //Calendarios
         this.schedule(this.creaBomba,1);
         this.schedule(this.creaZan,2);
@@ -222,141 +185,30 @@ var HelloWorldLayer = cc.Layer.extend({
                 event.getCurrentTarget()
                 return true;
             },
-			onTouchMoved: this.movimientoP,
-            onTouchesEnded: this.imgenBase
+			onTouchMoved: this.movimientoP
 			
 		}, this);
         
         cc.eventManager.addListener({
 			event: cc.EventListener.KEYBOARD,
-            onKeyPressed: this.movimientoT,
-            onKeyReleased: this.imgenBase
+            onKeyPressed: this.movimientoT
 			
 		}, this);
         
         return true;
     }
-       
 });
-
-var gOverLayer = cc.Layer.extend({
-    fondo: null,
-    gover: null,
-    ctor: function(){
-        this._super();
-        var size = cc.winSize;
-        this.size = size;
-
-        //posicionando la imagen de fondo
-        this.sprFondo = new cc.Sprite(res.fondo);
-        this.sprFondo.setPosition(size.width / 2,size.height / 2);
-        this.addChild(this.sprFondo, 0);
-        
-        this.gover = new cc.Sprite(res.go);
-        this.gover.setPosition(size.width / 2,size.height / 2);
-        this.addChild(this.gover, 0);
-        
-        
-        /* var menuItem1 = new cc.MenuItemFont("Push",); 
-           var menu = new cc.Menu(menuItem1); 
-           menu.alignItemsVertically(); 
-           this.addChild(menu);*/
-    },
-    play : function() 
-  { 
-    
-       //INITIALIZED = false;
-      // Fade Transition 
-      
-      //cc.log(INITIALIZEDHS);
-      var scene = new HelloWorldScene();
-	  
-      cc.director.runScene(new cc.TransitionFade(3.0,scene));
- 
- 
-      // Jump and Zoom Transition 
-      //cc.director.runScene(new cc.TransitionJumpZoom(3.0, scene)); 
-
- 
-      // Zoom and Flip Transition 
-    // cc.director.runScene(new cc.TransitionZoomFlipY(3.0, scene)); 
- }
-    
-    
-});
-
-var yWinLayer = cc.Layer.extend({
-    fondo: null,
-    ctor: function(){
-        this._super();
-        var size = cc.winSize;
-        this.size = size;
-
-        //posicionando la imagen de fondo
-        this.sprFondo = new cc.Sprite(res.fondo_png);
-        this.sprFondo.setPosition(size.width / 2,size.height / 2);
-        this.addChild(this.sprFondo, 0);
-         
-        this.gover = new cc.Sprite(res.win);
-        this.gover.setPosition(size.width / 2,size.height / 2);
-        this.addChild(this.gover, 0);
-        
-        /* var menuItem1 = new cc.MenuItemFont("Push",); 
-           var menu = new cc.Menu(menuItem1); 
-           menu.alignItemsVertically(); 
-           this.addChild(menu);*/
-    },
-    play : function() 
-  { 
-    
-       //INITIALIZED = false;
-      // Fade Transition 
-      
-      //cc.log(INITIALIZEDHS);
-      var scene = new HelloWorldScene();
-	  
-      cc.director.runScene(new cc.TransitionFade(3.0,scene));
- 
- 
-      // Jump and Zoom Transition 
-      //cc.director.runScene(new cc.TransitionJumpZoom(3.0, scene)); 
-
- 
-      // Zoom and Flip Transition 
-    // cc.director.runScene(new cc.TransitionZoomFlipY(3.0, scene)); 
- }
-    
-    
-});
-
-
 
 var HelloWorldScene = cc.Scene.extend({
     onEnter:function () {
         this._super();
-        cc.log(STARTED);
         var layer = new HelloWorldLayer();
-        if(STARTED===false){
-            STARTED = true;
-            this.addChild(layer);
-        
-        }
-       /* else{
-             //var escena = cc.Scene.create();
-            //cc.director.popScene();
-            //this.addChild(new HelloWorldLayer());
-            this.removeChild(layer);
-            this.addChild(new HelloWorldLayer());
-            /*cc.director.runScene(new cc.TransitionFade(3.0,new HelloWorldScene()));
-            
-        }*/
-        
-         
+        this.addChild(layer);
         
     }
 });
 
-/*====================GAME OVER========================
+/*====================GAME OVER========================*/
    var gOver= cc.Layer.extend({
             menu:function(){
                 cc.log("Inside");
@@ -377,15 +229,10 @@ var HelloWorldScene = cc.Scene.extend({
         this.sprFondo = new cc.Sprite(res.fondo_png);
         this.sprFondo.setPosition(size.width / 2,size.height / 2);
         this.addChild(this.sprFondo, 0);
-       /* var boton = new cc.MenuItemImage(res.reset,res.start,reiniciar());
+        var boton = new cc.MenuItemImage(res.reset,res.start,reiniciar());
                 var menu = new cc.Menu(boton);
                 menu.alignItemsVertically();
                 this.addChild(menu);
-           var menuItem1 = new cc.MenuItemFont("Push", play); 
-           var menu = new cc.Menu(menuItem1); 
-           menu.alignItemsVertically(); 
-           this.addChild(menu); 
-
         
         return true;
     }
@@ -395,27 +242,9 @@ var HelloWorldScene = cc.Scene.extend({
 var reiniciar = function(){
                 cc.log("HHHH");
                       var sceneo = new HelloWorldScene();
-                        cc.director.runScene(new cc.TransitionFade(3.0,sceneo));
+                        cc.director.pushScene(new cc.TransitionFade(3.0,sceneo));
                     
                 };
-var play = function() 
-  { 
-    
-       INITIALIZED = false;
-      // Fade Transition 
-      
-      cc.log(INITIALIZEDHS);
-      var scene = new HelloWorldScene();
-      cc.director.runScene(new cc.TransitionFade(3.0,scene));
- 
- 
-      // Jump and Zoom Transition 
-      //cc.director.runScene(new cc.TransitionJumpZoom(3.0, scene)); 
-
- 
-      // Zoom and Flip Transition 
-    // cc.director.runScene(new cc.TransitionZoomFlipY(3.0, scene)); 
- }; 
 
 
 var gameOverScene = cc.Scene.extend({
@@ -429,4 +258,4 @@ var gameOverScene = cc.Scene.extend({
         	this.addChild(layer);
         }
     }
-});*/
+});
